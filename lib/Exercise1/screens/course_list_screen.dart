@@ -1,31 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:week6_practice_part1/Exercise1/providers/courses_provider.dart';
 import '../models/course.dart';
 import 'course_screen.dart';
 
 const Color mainColor = Colors.blue;
 
-class CourseListScreen extends StatefulWidget {
+class CourseListScreen extends StatelessWidget {
   const CourseListScreen({super.key});
 
-  @override
-  State<CourseListScreen> createState() => _CourseListScreenState();
-}
-
-class _CourseListScreenState extends State<CourseListScreen> {
-  final List<Course> _allCourses = [Course(name: 'HTML'), Course(name: 'JAVA')];
-
-  void _editCourse(Course course) async {
-    await Navigator.of(context).push<Course>(
-      MaterialPageRoute(builder: (ctx) => CourseScreen(course: course)),
+  void _navigateToCourse(BuildContext context, String courseId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (ctx) => CourseScreen(courseId: courseId)),
     );
-
-    setState(() {
-      // trigger a rebuild
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final coursesProvider = Provider.of<CoursesProvider>(context);
+    final courses = coursesProvider.getCourses();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -33,13 +27,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
         title: const Text('SCORE APP', style: TextStyle(color: Colors.white)),
       ),
       body: ListView.builder(
-        itemCount: _allCourses.length,
+        itemCount: courses.length,
         itemBuilder:
             (ctx, index) => Dismissible(
-              key: Key(_allCourses[index].name),
+              key: Key(courses[index].name),
               child: CourseTile(
-                course: _allCourses[index],
-                onEdit: _editCourse,
+                course: courses[index],
+                onEdit: (course) => _navigateToCourse(context, course.name),
               ),
             ),
       ),
